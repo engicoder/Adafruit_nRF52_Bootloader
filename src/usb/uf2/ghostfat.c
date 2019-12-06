@@ -323,7 +323,7 @@ int write_block(uint32_t block_no, uint8_t *data, bool quiet, WriteState *state)
         static bool first_write = true;
         if ( first_write ) {
           first_write = false;
-          led_state(STATE_WRITING_STARTED);
+          board_led_status(LED_STATUS_WRITING_STARTED);
         }
 
         flash_nrf5x_write(bl->targetAddr, bl->data, bl->payloadSize, true);

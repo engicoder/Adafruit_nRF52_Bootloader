@@ -16,7 +16,7 @@ SD_PATH      = lib/softdevice/$(SD_FILENAME)
 TUSB_PATH    = lib/tinyusb/src
 NRFX_PATH    = lib/nrfx
 
-SD_VERSION   = 6.1.1
+SD_VERSION   = 6.0.0
 SD_FILENAME  = $(SD_NAME)_nrf52_$(SD_VERSION)
 SD_API_PATH  = $(SD_PATH)/$(SD_FILENAME)_API
 SD_HEX       = $(SD_PATH)/$(SD_FILENAME)_softdevice.hex
@@ -105,7 +105,7 @@ C_SOURCE_FILES += $(SRC_PATH)/boards.c
 C_SOURCE_FILES += $(SRC_PATH)/flash_nrf5x.c
 C_SOURCE_FILES += $(SRC_PATH)/dfu_ble_svc.c
 C_SOURCE_FILES += $(SRC_PATH)/dfu_init.c
-
+C_SOURCE_FILES += $(SRC_PATH)/boards/$(BOARD)/board.c
 # nrfx
 C_SOURCE_FILES += $(NRFX_PATH)/drivers/src/nrfx_power.c
 C_SOURCE_FILES += $(NRFX_PATH)/hal/nrf_nvmc.c
@@ -170,6 +170,15 @@ C_SOURCE_FILES += $(TUSB_PATH)/tusb.c
 
 endif
 
+ifeq ($(BOARD), equinox)
+
+C_SOURCE_FILES += $(NRFX_PATH)/drivers/src/nrfx_twim.c
+
+C_SOURCE_FILES += $(SRC_PATH)/boards/equinox/gpio_nrf5.c
+C_SOURCE_FILES += $(SRC_PATH)/boards/equinox/i2c_master.c
+C_SOURCE_FILES += $(SRC_PATH)/boards/equinox/lp50xx.c
+
+endif
 
 #******************************************************************************
 # Assembly Files

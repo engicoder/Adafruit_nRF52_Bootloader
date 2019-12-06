@@ -60,7 +60,7 @@
 #include "app_scheduler.h"
 #include "nrf_error.h"
 
-#include "boards.h"
+#include "board.h"
 
 #include "pstorage_platform.h"
 #include "nrf_mbr.h"
@@ -77,7 +77,7 @@ void usb_teardown(void);
 
 #else
 
-#define usb_init(x)       led_state(STATE_USB_MOUNTED) // mark nrf52832 as mounted
+#define usb_init(x)       board_led_status(LED_STATUS_USB_MOUNTED) // mark nrf52832 as mounted
 #define usb_teardown()
 
 #endif
@@ -137,7 +137,7 @@ bool _ota_connected = false;
 
 bool is_ota(void)
 {
-  return _ota_dfu;
+   return _ota_dfu;
 }
 
 void softdev_mbr_init(void)
@@ -145,6 +145,8 @@ void softdev_mbr_init(void)
   sd_mbr_command_t com = { .command = SD_MBR_COMMAND_INIT_SD };
   sd_mbr_command(&com);
 }
+
+
 
 int main(void)
 {
@@ -170,28 +172,28 @@ int main(void)
   // This check ensures that the defined fields in the bootloader corresponds with actual setting in the chip.
   APP_ERROR_CHECK_BOOL(*((uint32_t *)NRF_UICR_BOOT_START_ADDRESS) == BOOTLOADER_REGION_START);
 
-  board_init();
+  boards_init();
   bootloader_init();
 
-  led_state(STATE_BOOTLOADER_STARTED);
+  board_led_status(LED_STATUS_BOOTLOADER_STARTED);
 
   // When updating SoftDevice, bootloader will reset before swapping SD
   if (bootloader_dfu_sd_in_progress())
   {
-    led_state(STATE_WRITING_STARTED);
+    board_led_status(LED_STATUS_WRITING_STARTED);
 
     APP_ERROR_CHECK( bootloader_dfu_sd_update_continue() );
     APP_ERROR_CHECK( bootloader_dfu_sd_update_finalize() );
 
-    led_state(STATE_WRITING_FINISHED);
+    board_led_status(LED_STATUS_WRITING_FINISHED);
   }
 
   /*------------- Determine DFU mode (Serial, OTA, FRESET or normal) -------------*/
   // DFU button pressed
-  dfu_start  = dfu_start || button_pressed(BUTTON_DFU);
+  dfu_start  = dfu_start || board_button_pressed(BUTTON_DFU);
 
   // DFU + FRESET are pressed --> OTA
-  _ota_dfu = _ota_dfu  || ( button_pressed(BUTTON_DFU) && button_pressed(BUTTON_FRESET) ) ;
+  _ota_dfu = _ota_dfu  || ( board_button_pressed(BUTTON_DFU) && board_button_pressed(BUTTON_FRESET) ) ;
 
   bool const valid_app = bootloader_app_is_valid(DFU_BANK_0_REGION_START);
 
@@ -221,13 +223,13 @@ int main(void)
   {
     if ( _ota_dfu )
     {
-      led_state(STATE_BLE_DISCONNECTED);
+      board_led_status(LED_STATUS_BLE_DISCONNECTED);
       softdev_init(!sd_inited);
       sd_inited = true;
     }
     else
     {
-      led_state(STATE_USB_UNMOUNTED);
+      board_led_status(LED_STATUS_USB_UNMOUNTED);
       usb_init(serial_only_dfu);
     }
 
@@ -243,14 +245,8 @@ int main(void)
     }
   }
 
-  // Adafruit Factory reset
-  if ( !button_pressed(BUTTON_DFU) && button_pressed(BUTTON_FRESET) )
-  {
-    adafruit_factory_reset();
-  }
-
   // Reset Board
-  board_teardown();
+  boards_teardown();
 
   // Jump to application if valid
   if (bootloader_app_is_valid(DFU_BANK_0_REGION_START) && !bootloader_dfu_sd_in_progress())
@@ -267,23 +263,6 @@ int main(void)
 }
 
 
-// Perform factory reset to erase Application + Data
-void adafruit_factory_reset(void)
-{
-  led_state(STATE_FACTORY_RESET_STARTED);
-
-  // clear all App Data if any
-  if ( DFU_APP_DATA_RESERVED )
-  {
-    nrf_nvmc_page_erase(APPDATA_ADDR_START);
-  }
-
-  // Only need to erase the 1st page of Application code to make it invalid
-  nrf_nvmc_page_erase(DFU_BANK_0_REGION_START);
-
-  // back to normal
-  led_state(STATE_FACTORY_RESET_FINISHED);
-}
 
 /**
  * Initializes the SoftDevice and the BLE event interrupt.
@@ -394,12 +373,12 @@ uint32_t proc_ble(void)
     {
       case BLE_GAP_EVT_CONNECTED:
         _ota_connected = true;
-        led_state(STATE_BLE_CONNECTED);
+        board_led_status(LED_STATUS_BLE_CONNECTED);
       break;
 
       case BLE_GAP_EVT_DISCONNECTED:
         _ota_connected = false;
-        led_state(STATE_BLE_DISCONNECTED);
+        board_led_status(LED_STATUS_BLE_DISCONNECTED);
       break;
 
       default: break;

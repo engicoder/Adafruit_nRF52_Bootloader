@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "nrf_pwm.h": "c",
+        "board.h": "c"
+    }
+}

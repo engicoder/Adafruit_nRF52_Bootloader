@@ -589,7 +589,7 @@ static void on_dfu_evt(ble_dfu_t * p_dfu, ble_dfu_evt_t * p_evt)
             break;
 
         case BLE_DFU_PACKET_WRITE:
-            led_state(STATE_WRITING_STARTED);
+            board_led_status(LED_STATUS_WRITING_STARTED);
             on_dfu_pkt_write(p_dfu, p_evt);
             break;
 

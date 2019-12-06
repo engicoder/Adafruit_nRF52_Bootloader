@@ -148,7 +148,7 @@ void tud_msc_write10_complete_cb(uint8_t lun)
   // uf2 file writing is complete --> complete DFU process
   if ( _wr_state.numBlocks && (_wr_state.numWritten >= _wr_state.numBlocks) )
   {
-    led_state(STATE_WRITING_FINISHED);
+    board_led_status(LED_STATUS_WRITING_FINISHED);
 
     dfu_update_status_t update_status;
 

@@ -146,10 +146,10 @@ void usb_teardown(void)
 //--------------------------------------------------------------------+
 void tud_mount_cb(void)
 {
-  led_state(STATE_USB_MOUNTED);
+   board_led_status(LED_STATUS_USB_MOUNTED);
 }
 
 void tud_umount_cb(void)
 {
-  led_state(STATE_USB_UNMOUNTED);
+   board_led_status(LED_STATUS_USB_UNMOUNTED);
 }

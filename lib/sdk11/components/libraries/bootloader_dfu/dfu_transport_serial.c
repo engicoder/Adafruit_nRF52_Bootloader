@@ -227,14 +227,14 @@ static void process_dfu_packet(void * p_event_data, uint16_t event_size)
                             retval = dfu_init_pkt_complete();
                             APP_ERROR_CHECK(retval);
 
-                            led_state(STATE_WRITING_STARTED);
+                            board_led_status(LED_STATUS_WRITING_STARTED);
                             break;
 
                         case STOP_DATA_PACKET:
                             (void)dfu_image_validate();
                             (void)dfu_image_activate();
 
-                            led_state(STATE_WRITING_FINISHED);
+                            board_led_status(LED_STATUS_WRITING_FINISHED);
 
                             // Break the loop by returning.
                             return;

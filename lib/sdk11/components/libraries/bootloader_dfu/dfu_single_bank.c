@@ -25,7 +25,6 @@
 #include "dfu_init.h"
 #include "sdk_common.h"
 
-#include "boards.h"
 
 static dfu_state_t                  m_dfu_state;                /**< Current DFU state. */
 static uint32_t                     m_image_size;               /**< Size of the image that will be transmitted. */
